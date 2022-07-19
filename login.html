@@ -136,9 +136,15 @@
         method:'POST',
         data:formData
       })
-      console.log(res)
+        console.log(res)
         toastBodyDiv.innerHTML = res.data.message
         toast.show()
+
+        // 把token字符串存入本地为后续调用其他接口和验证是否登录做准备----》传到index.html/其他文件中使用token字符串
+        localStorage.setItem('hm_token',res.data.data.token)
+        location.href = './index.html'
+
+
       } catch (err){
         console.dir(err)
         toastBodyDiv.innerHTML = err.response.data.message
