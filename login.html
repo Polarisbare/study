@@ -5,11 +5,30 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>注册</title>
+  <title>登录</title>
   <link rel="stylesheet" href="./bootstrap/bootstrap.min.css" />
   <link rel="stylesheet" href="./bootstrap/bootstrap-icons.css" />
   <link rel="stylesheet" href="./css/common.css" />
+  <style>
+    .form-control:focus {
+      border-color: #e0e6ed;
+      box-shadow: none;
+    }
 
+    .form-control,
+    .form-group,
+    .input-group {
+      transition: none !important;
+    }
+
+    .text-blue {
+      color: #499FEE;
+    }
+
+    .text-blue:hover {
+      color: #499FEE;
+    }
+  </style>
 </head>
 
 <body class="application application-offset">
@@ -19,16 +38,14 @@
       <div class="page-content">
         <div class="min-vh-100 py-5 d-flex align-items-center">
           <div class="w-100">
-            <!-- 表单容器 -->
             <div class="row justify-content-center">
               <div class="col-sm-8 col-lg-4">
                 <div class="card shadow zindex-100 mb-0">
                   <div class="card-body px-md-5 py-5">
                     <div class="mb-5">
-                      <h6 class="h3">传智教育-注册</h6>
+                      <h6 class="h3">传智教育-登录</h6>
                     </div>
                     <span class="clearfix"></span>
-                    <!-- 表单  -->
                     <form role="form" autocomplete="off">
                       <div class="form-group">
                         <label class="form-control-label">账号</label>
@@ -36,7 +53,6 @@
                           <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
                           </div>
-                          <!-- 账号输入框 -->
                           <input name="username" type="text" class="form-control" id="input-email"
                             placeholder="请输入账号" />
                         </div>
@@ -55,7 +71,6 @@
                           <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-key"></i></span>
                           </div>
-                          <!-- 密码输入框 -->
                           <input name="password" type="password" class="form-control" id="input-password"
                             placeholder="请输入密码" />
                           <div class="input-group-append">
@@ -68,17 +83,15 @@
                         </div>
                       </div>
                       <div class="mt-4">
-                        <button id="btn-register" type="button"
-                          class="btn btn-sm btn-info btn-icon btn-blue rounded-pill">
-                          <!-- 注册按钮 -->
-                          <span class="btn-inner--text">注册</span>
+                        <button id="btn-login" type="button" class="btn btn-sm btn-info btn-icon btn-blue rounded-pill">
+                          <span class="btn-inner--text">登录</span>
                           <span class="btn-inner--icon"><i class="bi bi-arrow-right"></i></span>
                         </button>
                       </div>
                     </form>
                   </div>
                   <div class="card-footer px-md-5">
-                    <small>已经注册？</small> <a href="./login.html" class="small font-weight-bold text-blue">去登录吧</a>
+                    <small>没有注册？</small> <a href="./register.html" class="small font-weight-bold text-blue">创建账号</a>
                   </div>
                 </div>
               </div>
@@ -99,47 +112,6 @@
   <script src="./lib/axios.js"></script>
   <script src="./js/common.js"></script>
   <script>
-    // 先设置基地址
-    axios.defaults.baseURL = 'http://ajax-api.itheima.net'
-    // 创建bootstrap弹窗
-    let toastBox = document.querySelector('#myToast')
-    const toast = new bootstrap.Toast(toastBox, {
-      animate: true,
-      autohide: true,
-      delay: 3000
-    })
-    let toastBodyDiv = document.querySelector('.toast-body')
-    // 完成按钮注册功能
-    // 1. 标签样式
-    // 2. 没有数据铺设直接省略第二步
-    // 3. 给注册按钮注册点击事件
-    document.querySelector('#btn-register').addEventListener('click', async e => {
-      // 按钮在表单内但是有自己的属性就是个普通按钮不用阻止表单默认行为   如果按钮的type是submit要阻止
-      // 获取表单的内容整体获取     因为需要看接口显示的是对象所以要hash
-      let formObj = serialize(document.querySelector('form'), { hash: true })
-      // 当前响应码为 4xx 5xx  Promise内返回失败状态await不会放行
-      // 使用try+catch 捕获Promise内失败对象判断注册失败
-      try{
-        // 提交服务器注册
-      const res = await axios({
-        url: '/register',
-        method: 'POST',
-        data: formObj
-      })
-      console.log(res)
-      // 如果await放行了（http响应码状态成功）注册成功弹窗
-      toastBodyDiv.innerHTML = res.data.message
-      toast.show()
-
-      } catch (err){
-      // 如果注册失败提示
-      // console.dir(err)
-      toastBodyDiv.innerHTML = err.response.data.message
-      toast.show()
-      }
-    })
-    // 总结：后端以响应状态码来区分成功和失败，我们就用await和try+catch 处理或者是  .then 和  .catch
-    // 后端以业务状态码来区分成功或者失败await可以接收，if和else自己判断
 
   </script>
 </body>
