@@ -287,16 +287,17 @@
   // axios有固定的选项叫headers，可以指定请求头和值
   axios({
     url:'/dashboard',
-    headers:{
-      Authorization:localStorage.getItem('hm_token')
-    }
   }).then(res => {
     console.log(res)
   })
   // 为何带token  作用（身份令牌）
   //  1. 服务器知道这次是谁在青丘（因为token字符串在后端揭秘拿到里面的用户信息）
   //  2. 服务器知道至此请求是否有权限，然后决定是否返回数据
-
+  // 请求拦截器：
+    // 问题：我们每次都写一样的请求头，很啰嗦，能不能优化携带？
+    // 解决：axios提供了一个固定函数（请求拦截函数），在config身上携带即可
+    // 所有的axios请求都会走他身上绑定的请求拦截器（发起前对配置做一些处理）
+    // 参考文档axios 和common.js中
   </script>
 </body>
   
