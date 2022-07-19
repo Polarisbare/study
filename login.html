@@ -112,7 +112,40 @@
   <script src="./lib/axios.js"></script>
   <script src="./js/common.js"></script>
   <script>
-
+  // 设置基地址
+    axios.defaults.baseURL = 'http://ajax-api.itheima.net'
+    // 创建bootstrap弹窗
+    let toastBox = document.querySelector('#myToast')
+    const toast = new bootstrap.Toast(toastBox, {
+      animate: true,
+      autohide: true,
+      delay: 3000
+    })
+    // 获取标签的提示框
+    let toastBodyDiv = document.querySelector('.toast-body')
+      // 获取登录按钮绑定事件
+    document.querySelector('#btn-login').addEventListener('click', async e => {
+        // 获取表单的整体内容
+      let formData = serialize(document.querySelector('form'), {hash : true})
+    
+      
+      // 接收成功的结果
+      try{
+        const res = await axios({
+        url:'/login',
+        method:'POST',
+        data:formData
+      })
+      console.log(res)
+        toastBodyDiv.innerHTML = res.data.message
+        toast.show()
+      } catch (err){
+        console.dir(err)
+        toastBodyDiv.innerHTML = err.response.data.message
+        toast.show()
+      }
+     
+    })
   </script>
 </body>
 
