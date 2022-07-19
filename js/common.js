@@ -5,3 +5,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('ready')
   }, 200)
 })
+  // 设置基地址
+  axios.defaults.baseURL = 'http://ajax-api.itheima.net'
