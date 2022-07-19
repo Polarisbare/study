@@ -118,7 +118,7 @@
                         src="https://yanxuan-item.nosdn.127.net/8b27deb1670c53e67c42ca3e1ed6fd12.jpg" />
                     </span>
                     <div class="ml-2 d-none d-lg-block">
-                      <span class="mb-0 text-sm font-weight-bold">Admin</span>
+                      <span id="wudi" class="mb-0 text-sm font-weight-bold">Admin</span>
                     </div>
                   </div>
                 </a>
@@ -276,6 +276,13 @@
       // 没拿到就强制跳转到登录页面
       location.href = './login.html'
     }
+    // 从本地拿出用户名在用户右上角登录页面显示
+    document.querySelector('#wudi').innerHTML = localStorage.getItem('hm_username')
+    // 退出绑定点击事件 清楚本地存储的数据，返回登录页面
+    document.querySelector('#logout').addEventListener('click', e => {
+      localStorage.clear()//清楚本地数据
+      location.href = './login.html'
+    })
 
 
 

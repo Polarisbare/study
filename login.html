@@ -143,6 +143,8 @@
         // 把token字符串存入本地为后续调用其他接口和验证是否登录做准备----》传到index.html/其他文件中使用token字符串
         localStorage.setItem('hm_token',res.data.data.token)
         location.href = './index.html'
+        // 获取到用户名
+        localStorage.setItem('hm_username',res.data.data.username)
 
 
       } catch (err){
