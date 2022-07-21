@@ -267,6 +267,7 @@
   <script src="./lib/axios.js"></script>
   <script src="./lib/echarts.min.js"></script>
   <script src="./js/common.js"></script>
+  <!-- 配合ECharts使用的中国地图数据后引入这个 -->
   <script src="./lib/china.js"></script>
   <!-- 目标需求 不登录不能访问首页 -->
   <!-- 登陆成功之后会有一个token字符串做标记 -->
@@ -291,8 +292,10 @@
       console.log(res)
       getOverViewFn(res.data.overview)//概览数据对象传入
       setList(res.data.year)//薪资数组传入
-      setPieFn(res.data.salaryData)
-      setGroupSalaryFn(res.data.groupData)
+      setPieFn(res.data.salaryData)//班级薪资分布数组传入
+      setGroupSalaryFn(res.data.groupData)//每组薪资分布数组
+      genderArr(res.data.salaryData)//男女饼状图
+      initMapChartFn(res.data.provinceData)//地图
 
     })
   // 为何带token  作用（身份令牌）
@@ -507,27 +510,243 @@
       let firstGroupArr = groupData[1]
       // 3. 映射把数据取出形成的新数组，传给配置想渲染图标
       let myCharts = echarts.init(document.querySelector('#lines'))
-      myCharts.setOption({
-      
-          xAxis: {
-            type: 'category',
-            data: firstGroupArr.map(obj => obj.name)
+
+      let option = {
+
+        xAxis: {
+          type: 'category',
+          data: firstGroupArr.map(obj => obj.name)
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            data: firstGroupArr.map(obj => obj.hope_salary),
+            type: 'bar'
           },
-          yAxis: {
-            type: 'value'
-          },
-          series: [
-            {
-              data: firstGroupArr.map(obj => obj.hope_salary),
-              type: 'bar'
-            },
-            {
-              data: firstGroupArr.map(obj => obj.salary),
-              type: 'bar'
-            }
-          ]
+          {
+            data: firstGroupArr.map(obj => obj.salary),
+            type: 'bar'
+          }
+        ]
+      }
+      myCharts.setOption(option)
+      // 事件委托给八个已经存在的按钮注册事件
+      document.querySelector('#btns').addEventListener('click', e => {
+        // e.target 真正触发事件的目标标签
+        if (e.target.tagName === 'BUTTON') {
+          // 获取到现有的高亮类名删除
+          document.querySelector('.btn-blue').classList.remove('btn-blue')
+          // 给当前的标签添加
+          e.target.classList.add('btn-blue')
+          // 拿到点击的组号
+          let groupIndex = e.target.innerHTML
+          // 换到对应的学生数组
+          let studentArr = groupData[groupIndex]
+          // 把配置对象里的series属性值从新赋予
+          option.series[0].data = studentArr.map(obj => obj.hope_salary)
+          option.series[1].data = studentArr.map(obj => obj.salary)
+          option.xAxis.data = studentArr.map(obj => obj.name)
+          // 让myECharts重新走一遍setOption
+          myCharts.setOption(option)
         }
-      )
+
+      })
+    }
+
+  </script>
+  <!-- 男女饼状图 -->
+  <script>
+    function genderArr(salaryArr) {
+      let myEChart = echarts.init(document.querySelector('#gender'))
+      let option = {
+        title: [
+          {
+            text: '男女薪资分布',
+            left: 10,
+            top: 10,
+            textStyle: {
+              fontSize: 16,
+            },
+          },
+          {
+            text: '男生',
+            left: '50%',
+            top: '45%',
+            textAlign: 'center',
+            textStyle: {
+              fontSize: 12,
+            },
+          },
+          {
+            text: '女生',
+            left: '50%',
+            top: '85%',
+            textAlign: 'center',
+            textStyle: {
+              fontSize: 12,
+            },
+          },
+        ],
+        tooltip: {
+          trigger: 'item'
+        },
+        color: ['#FDA224', '#5097FF', '#3ABCFA', '#34D39A'],
+        series: [
+          {
+            type: 'pie',
+            radius: 50,
+            radius: ['20%', '30%'],
+            center: ['50%', '30%'],
+            datasetIndex: 1,
+            data: salaryArr.map(obj => ({
+              name: obj.label,
+              value: obj.b_count
+            }))
+
+          },
+          {
+            type: 'pie',
+            radius: 50,
+            radius: ['20%', '30%'],
+            center: ['50%', '70%'],
+            datasetIndex: 2,
+            data: salaryArr.map(obj => ({
+              name: obj.label,
+              value: obj.g_count
+            }))
+
+          }
+
+        ]
+
+      }
+      myEChart.setOption(option)
+    }
+  </script>
+  <!-- 籍贯分布 -->
+  <script>
+    const initMapChartFn = (provinceArr) => {
+      const myEchart = echarts.init(document.querySelector('#map'))
+  
+        // 把回台返回的数据合并到dataList中
+        // name相同留下替换
+        // 注意 dataList数组35个   后台返回只有28个
+        // 图标里要求完整的省份数据
+        // 
+      const dataList = [
+        { name: '南海诸岛', value: 0 },
+        { name: '北京', value: 0 },
+        { name: '天津', value: 0 },
+        { name: '上海', value: 0 },
+        { name: '重庆', value: 0 },
+        { name: '河北', value: 0 },
+        { name: '河南', value: 0 },
+        { name: '云南', value: 0 },
+        { name: '辽宁', value: 0 },
+        { name: '黑龙江', value: 0 },
+        { name: '湖南', value: 0 },
+        { name: '安徽', value: 0 },
+        { name: '山东', value: 0 },
+        { name: '新疆', value: 0 },
+        { name: '江苏', value: 0 },
+        { name: '浙江', value: 0 },
+        { name: '江西', value: 0 },
+        { name: '湖北', value: 0 },
+        { name: '广西', value: 0 },
+        { name: '甘肃', value: 0 },
+        { name: '山西', value: 0 },
+        { name: '内蒙古', value: 0 },
+        { name: '陕西', value: 0 },
+        { name: '吉林', value: 0 },
+        { name: '福建', value: 0 },
+        { name: '贵州', value: 0 },
+        { name: '广东', value: 0 },
+        { name: '青海', value: 0 },
+        { name: '西藏', value: 0 },
+        { name: '四川', value: 0 },
+        { name: '宁夏', value: 0 },
+        { name: '海南', value: 0 },
+        { name: '台湾', value: 0 },
+        { name: '香港', value: 0 },
+        { name: '澳门', value: 0 },
+      ]
+          // 数据设置
+        provinceArr.forEach((proObj) => {
+        // 遍历后台返回的数据每个省份的对象
+        // 对dataList找到同名的对象付给value值
+        const leftobj = dataList.find((item) => proObj.name.replace(/省|回族自治区|吾尔自治区|壮族自治区|特别行政区|自治区/g, '') === item.name)
+        if (leftobj) leftobj.value = proObj.value
+      })
+      let option = {
+        title: {
+          text: '籍贯分布',
+          top: 10,
+          left: 10,
+          textStyle: {
+            fontSize: 16,
+          },
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c} 位学员',
+          borderColor: 'transparent',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          textStyle: {
+            color: '#fff',
+          },
+        },
+        visualMap: {
+          min: 0,
+          max: 6,
+          left: 'left',
+          bottom: '20',
+          text: ['6', '0'],
+          inRange: {
+            color: ['#ffffff', '#0075F0'],
+          },
+          show: true,
+          left: 40,
+        },
+        geo: { // 地理坐标系组件
+          map: 'china',
+          roam: false,
+          zoom: 1.0,
+          label: {
+            normal: {
+              show: true,
+              fontSize: '10',
+              color: 'rgba(0,0,0,0.7)',
+            },
+          },
+          itemStyle: {
+            normal: {
+              borderColor: 'rgba(0, 0, 0, 0.2)',
+              color: '#e0ffff',
+            },
+            emphasis: {
+              areaColor: '#34D39A',
+              shadowOffsetX: 0,
+              shadowOffsetY: 0,
+              shadowBlur: 20,
+              borderWidth: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)',
+            },
+          },
+        },
+        series: [
+          {
+            name: '籍贯分布',
+            type: 'map',
+            geoIndex: 0,
+            data: dataList,
+          },
+        ],
+
+      }
+      myEchart.setOption(option)
+
     }
   </script>
 </body>
