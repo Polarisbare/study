@@ -291,6 +291,8 @@
       console.log(res)
       getOverViewFn(res.data.overview)//概览数据对象传入
       setList(res.data.year)//薪资数组传入
+      setPieFn(res.data.salaryData)
+      setGroupSalaryFn(res.data.groupData)
 
     })
   // 为何带token  作用（身份令牌）
@@ -331,9 +333,9 @@
   <!-- 绘制图表 -->
   <script>
     // 目标完成折线图绘制
-    function setList(yearList){
-         // 1. 获取容器标签
-         let lineDiv = document.querySelector('#line')
+    function setList(yearList) {
+      // 1. 获取容器标签
+      let lineDiv = document.querySelector('#line')
       // 2. 实例化ECharts对象
       let myChart = echarts.init(lineDiv);
       // 准备ECharts配置项对象
@@ -370,7 +372,7 @@
         },
         series: [
           {
-            data:yearList.map(obj => obj.salary),
+            data: yearList.map(obj => obj.salary),
             type: 'line',
             smooth: true,
             symbolSize: 10, // 标记的大小
@@ -425,7 +427,107 @@
       };
       // 4. 把配置项交给ECharts实例，开始绘制相关图形
       myChart.setOption(option)
-    
+
+    }
+  </script>
+  <!-- 班级薪资饼图 -->
+  <script>
+    function setPieFn(salaryArr) {
+      let salaryPic = document.querySelector('#salary')
+      let myChart = echarts.init(salaryPic);
+      let option = {
+        title: {
+          text: '班级薪资分布',
+          textStyle: {
+            fontSize: 16
+          },
+          top: 15,
+          left: 10,
+        },
+        color: ['#FDA224', '#5097FF', '#3ABCFA', '#34D39A'],
+        tooltip: {//提示框
+          trigger: 'item'
+        },
+
+        legend: {//图例组件
+          bottom: '6%',
+          left: 'center'
+        },
+        series: [
+          {
+            name: 'Access From',//系列名字
+            type: 'pie',//饼状图
+            center: ['50%', '45%'],
+            radius: ['50%', '64%'],//内圆半径，外圆半径（百分比：容器高宽）
+            // avoidLabelOverlap: false,//每个图形的一个提示文字
+            itemStyle: {
+              borderRadius: 10,//边框每个部分的圆角大小
+              borderColor: '#fff',//边框颜色
+              borderWidth: 2//边框宽度
+            },
+            label: {//圆形每个颜色部分的说明文字
+              show: false,//默认不在周边县市）（false隐藏）
+              position: 'center'
+            },
+            // emphasis: {//高亮状态（鼠标移动到他的身上）的山区和标签（文本）
+            //   label: {//文本
+            //     show: true,//文本出现
+            //     fontSize: '40',//文本大小
+            //     fontWeight: 'bold'//文本字体 加粗
+            //   }
+            // },
+            labelLine: {//每个区域和提示文本的连接线
+              show: false//不显示
+            },
+            // data: [//每个选项（区域）的数据
+            //   { value: 1048, name: 'Search Engine' },
+            //   { value: 735, name: 'Direct' },
+            //   { value: 580, name: 'Email' },
+            //   { value: 484, name: 'Union Ads' }
+            // ]
+            data: salaryArr.map(obj => {
+              return ({
+                value: obj.g_count + obj.b_count,
+                name: obj.label
+              })
+            })
+          }
+        ]
+      }
+      myChart.setOption(option)
+
+    }
+  </script>
+  <!-- 每组薪资分部 -->
+  <script>
+    function setGroupSalaryFn(groupData) {
+      //1. 准备好柱状图和配置项
+      //2. 看好数据关系（默认显示第一组的学生数据到柱状图）
+      // 属性表达式   groupData[1]
+      let firstGroupArr = groupData[1]
+      // 3. 映射把数据取出形成的新数组，传给配置想渲染图标
+      let myCharts = echarts.init(document.querySelector('#lines'))
+      myCharts.setOption({
+      
+          xAxis: {
+            type: 'category',
+            data: firstGroupArr.map(obj => obj.name)
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              data: firstGroupArr.map(obj => obj.hope_salary),
+              type: 'bar'
+            },
+            {
+              data: firstGroupArr.map(obj => obj.salary),
+              type: 'bar'
+            }
+          ]
+        }
+      )
     }
   </script>
 </body>
