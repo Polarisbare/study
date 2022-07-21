@@ -290,6 +290,8 @@
     }).then(res => {
       console.log(res)
       getOverViewFn(res.data.overview)//概览数据对象传入
+      setList(res.data.year)//薪资数组传入
+
     })
   // 为何带token  作用（身份令牌）
   //  1. 服务器知道这次是谁在青丘（因为token字符串在后端揭秘拿到里面的用户信息）
@@ -329,9 +331,9 @@
   <!-- 绘制图表 -->
   <script>
     // 目标完成折线图绘制
-    ; (() => {
-      // 1. 获取容器标签
-      let lineDiv = document.querySelector('#line')
+    function setList(yearList){
+         // 1. 获取容器标签
+         let lineDiv = document.querySelector('#line')
       // 2. 实例化ECharts对象
       let myChart = echarts.init(lineDiv);
       // 准备ECharts配置项对象
@@ -355,7 +357,7 @@
         },
         xAxis: {
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+          data: yearList.map(obj => obj.month)//月份的数值
         },
         yAxis: {
           type: 'value',
@@ -368,7 +370,7 @@
         },
         series: [
           {
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
+            data:yearList.map(obj => obj.salary),
             type: 'line',
             smooth: true,
             symbolSize: 10, // 标记的大小
@@ -423,8 +425,8 @@
       };
       // 4. 把配置项交给ECharts实例，开始绘制相关图形
       myChart.setOption(option)
-    })();
-
+    
+    }
   </script>
 </body>
 
