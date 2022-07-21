@@ -289,6 +289,7 @@
     url:'/dashboard',
   }).then(res => {
     console.log(res)
+    getOverViewFn(res.data.overview)//概览数据对象传入
   })
   // 为何带token  作用（身份令牌）
   //  1. 服务器知道这次是谁在青丘（因为token字符串在后端揭秘拿到里面的用户信息）
@@ -307,6 +308,23 @@
 
     // 制造401问题： 去本地数据里双击token的值，修改，刷新网页让index。html内请求携带错误的token请求服务器，等待返回401
     // 先登录--修改localStorage的token --刷新--携带错误的token给服务器--服务器返回401进入响应拦截器--走退出流程
+  </script>
+  <!-- 概览数据铺设 -->
+  <script>
+    function getOverViewFn(obj){
+      // 把数据铺设到标签上
+      // document,querySelector('[name="age"]').innerHTML = obj.age
+      // document,querySelector('[name="group_count"]').innerHTML = obj.group_count
+      // document,querySelector('[name="salary"]').innerHTML = obj.salary
+      // document,querySelector('[name="student_count"]').innerHTML = obj.student_count
+
+      // 优化：假如标签属性和值很多的话上面写会很麻烦，所以优化如下
+      // 前提确保标签有class/name等属性的值，要和数据的属性对应
+      // 才可以遍历对象时，用数据对象的属性，去换取标签然后赋值
+      for(let key in obj){
+        document.querySelector(`[name=${key}]`).innerHTML = obj[key]
+      }
+    }
   </script>
 </body>
   
