@@ -382,10 +382,10 @@
         // console.log('123')
         // 再循环是吧哪行数据对象的id，添加到i标签自定义属性的data-id上保存
         // 点击时删除
-        let taegetID = e.target.dataset.id
+        let targetID = e.target.dataset.id
         // 请求服务器调用删除接口，告诉服务器删除id
         await axios({
-          url: `/students/${taegetID}`,
+          url: `/students/${targetID}`,
           method: 'DELETE'
         })
         // 删除接口无响应体，无需接收结果，虽然无响应体，但是还有响应状态码，axios内根据相映红组昂泰马影响原地的Promise状态
@@ -403,7 +403,56 @@
     document.querySelector('#openModal').addEventListener('click', e => {
       myModal.show()
     })
-
+    // 目标铺设省市区数据联动
+    // 请求省份列表option铺设
+    let proSelect = document.querySelector('[name="province"]')
+    let citySelect = document.querySelector('[name="city"]')
+    let areaSelect = document.querySelector('[name="area"]')
+    async function setProvinceListFn(){
+      const res = await axios({
+        url:'/api/province'
+      })
+      // console.log(res)
+      let allProstr = res.data.map(proName => `<option value="${proName}">${proName}</option>`).join('')
+      proSelect.innerHTML = `<option value="">--省份--</option>${allProstr}`
+    }
+    setProvinceListFn()
+    // 检测省份下拉的change事件--》切换城市列表清空城市列表
+    proSelect.addEventListener('change',async e => {
+      if(proSelect.value === ''){
+        // 如果省份选择的是空，城市地区也清空
+        citySelect.innerHTML = `<option value="">--城市--</option>`
+        areaSelect.innerHTML = `<option value="">--地区--</option>`
+      } else {
+        let res = await axios({
+        url:'/api/city',
+        params:{
+          pname:proSelect.value 
+        }
+      })
+      // console.log(res)
+      let allCitystr = res.data.map(cityName => `<option value="${cityName}">${cityName}</option>`).join('')
+      citySelect.innerHTML = `<option value="">--城市--</option>${allCitystr}`
+      }
+    })
+    // 检测城市下拉的change事件--》切换城市列表清空地区列表
+    citySelect.addEventListener('change',async e => {
+      if(citySelect.value === ''){
+        areaSelect.innerHTML = `<option value="">--地区--</option>`
+      }else{
+        // 拿到城市的命字，请求地区列表铺设
+        let res = await axios({
+          url:'/api/area',
+          params:{
+            pname : proSelect.value,
+            cname : citySelect.value
+          }
+        })
+        // console.log(res)
+       let allAreaStr = res.data.map(areaName => `<option value="${areaName}">${areaName}</option>`).join('')
+       areaSelect.innerHTML = `<option value="">--地区--</option>${allAreaStr}`
+      }
+    })
   </script>
 </body>
 
