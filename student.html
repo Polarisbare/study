@@ -355,14 +355,14 @@
                    <tr>
                       <td>${obj.name}</td>
                       <td>${obj.age}</td>
-                      <td>${obj.gender === 0 ? '男':'女' }</td>
+                      <td>${obj.gender === 0 ? '男' : '女'}</td>
                       <td>第${obj.group}组</td>
                       <td>${obj.hope_salary}</td>
                       <td>${obj.salary}</td>
                       <td>${obj.province}${obj.city}${obj.area}</td>
                       <td>
                         <a href="javascript:;" class="text-success mr-3"><i class="bi bi-pen"></i></a>
-                        <a href="javascript:;" class="text-danger"><i class="bi bi-trash"></i></a>
+                        <a href="javascript:;" class="text-danger"><i class="bi bi-trash" data-id="${obj.id}"></i></a>
                       </td>
                     </tr>
           
@@ -371,6 +371,39 @@
       document.querySelector('.list').innerHTML = trArr.join('')
     }
     setStudentList()
+
+  </script>
+
+  <!-- 删除 -->
+  <script>
+    // 1. 给已经存在的标签事件委托绑定事件
+    document.querySelector('.list').addEventListener('click', async e => {
+      if (e.target.classList.contains('bi-trash')) {
+        // console.log('123')
+        // 再循环是吧哪行数据对象的id，添加到i标签自定义属性的data-id上保存
+        // 点击时删除
+        let taegetID = e.target.dataset.id
+        // 请求服务器调用删除接口，告诉服务器删除id
+        await axios({
+          url: `/students/${taegetID}`,
+          method: 'DELETE'
+        })
+        // 删除接口无响应体，无需接收结果，虽然无响应体，但是还有响应状态码，axios内根据相映红组昂泰马影响原地的Promise状态
+        // 用await等待删除成功接口走完（请求和响应后），后端数据删除完毕，重新请求
+        // 重新铺设页面
+        setStudentList()
+      }
+    })
+  </script>
+
+  <!-- 新增  -->
+  <script>
+    var myModal = new bootstrap.Modal(document.getElementById('modal'))
+    // 给右上角加好添加绑定时间
+    document.querySelector('#openModal').addEventListener('click', e => {
+      myModal.show()
+    })
+
   </script>
 </body>
 
