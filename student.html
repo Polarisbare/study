@@ -260,7 +260,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">添加学员</h5>
+          <h5 class="modal-title" id="xue">添加学员</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -342,13 +342,14 @@
   <script src="./js/permission.js"></script>
   <!-- 学生列表的铺设 -->
   <script>
+    let editID = null//保存正在编辑的id值
     // 添加和编辑标签思路
     // 添加和编辑服用同一套标单（主流）
     async function setStudentList() {
       let res = await axios({
         url: '/students'
       })
-      console.log(res)
+      // console.log(res)
       // 铺设数据
       let trArr = res.data.map(obj => {
         return `
@@ -361,7 +362,7 @@
                       <td>${obj.salary}</td>
                       <td>${obj.province}${obj.city}${obj.area}</td>
                       <td>
-                        <a href="javascript:;" class="text-success mr-3"><i class="bi bi-pen"></i></a>
+                        <a href="javascript:;" class="text-success mr-3"><i class="bi bi-pen" data-id="${obj.id}"></i></a>
                         <a href="javascript:;" class="text-danger"><i class="bi bi-trash" data-id="${obj.id}"></i></a>
                       </td>
                     </tr>
@@ -399,9 +400,12 @@
   <!-- 新增  -->
   <script>
     var myModal = new bootstrap.Modal(document.getElementById('modal'))
-    // 给右上角加好添加绑定时间
+    // 给右上角加号添加绑定时间
     document.querySelector('#openModal').addEventListener('click', e => {
+      document.querySelector('#xue').innerHTML = '添加学员'
       myModal.show()
+
+      editID = null //代表现在是新增不是编辑状态
     })
     // 目标铺设省市区数据联动
     // 请求省份列表option铺设
@@ -409,9 +413,9 @@
     let citySelect = document.querySelector('[name="city"]')
     let areaSelect = document.querySelector('[name="area"]')
     let theForm = document.querySelector('#form')
-    async function setProvinceListFn(){
+    async function setProvinceListFn() {
       const res = await axios({
-        url:'/api/province'
+        url: '/api/province'
       })
       // console.log(res)
       let allProstr = res.data.map(proName => `<option value="${proName}">${proName}</option>`).join('')
@@ -419,67 +423,163 @@
     }
     setProvinceListFn()
     // 检测省份下拉的change事件--》切换城市列表清空城市列表
-    proSelect.addEventListener('change',async e => {
-      if(proSelect.value === ''){
+    proSelect.addEventListener('change', async e => {
+      if (proSelect.value === '') {
         // 如果省份选择的是空，城市地区也清空
+        citySelect.value = ''
+        areaSelect.value = ''
         citySelect.innerHTML = `<option value="">--城市--</option>`
         areaSelect.innerHTML = `<option value="">--地区--</option>`
       } else {
         let res = await axios({
-        url:'/api/city',
-        params:{
-          pname:proSelect.value 
-        }
-      })
-      // console.log(res)
-      let allCitystr = res.data.map(cityName => `<option value="${cityName}">${cityName}</option>`).join('')
-      citySelect.innerHTML = `<option value="">--城市--</option>${allCitystr}`
-      }
-    })
-    // 检测城市下拉的change事件--》切换城市列表清空地区列表
-    citySelect.addEventListener('change',async e => {
-      if(citySelect.value === ''){
-        areaSelect.innerHTML = `<option value="">--地区--</option>`
-      }else{
-        // 拿到城市的命字，请求地区列表铺设
-        let res = await axios({
-          url:'/api/area',
-          params:{
-            pname : proSelect.value,
-            cname : citySelect.value
+          url: '/api/city',
+          params: {
+            pname: proSelect.value
           }
         })
         // console.log(res)
-       let allAreaStr = res.data.map(areaName => `<option value="${areaName}">${areaName}</option>`).join('')
-       areaSelect.innerHTML = `<option value="">--地区--</option>${allAreaStr}`
+        // 选择省份的时候都清空城市和地区
+        citySelect.value = ''
+        areaSelect.value = ''
+
+        let allCitystr = res.data.map(cityName => `<option value="${cityName}">${cityName}</option>`).join('')
+        citySelect.innerHTML = `<option value="">--城市--</option>${allCitystr}`
+        areaSelect.innerHTML = `<option value="">--地区--</option>${allAreaStr}`
+
+      }
+    })
+    // 检测城市下拉的change事件--》切换城市列表清空地区列表
+    citySelect.addEventListener('change', async e => {
+      if (citySelect.value === '') {
+        areaSelect.value = ''
+        areaSelect.innerHTML = `<option value="">--地区--</option>`
+      } else {
+        // 拿到城市的命字，请求地区列表铺设
+        let res = await axios({
+          url: '/api/area',
+          params: {
+            pname: proSelect.value,
+            cname: citySelect.value
+          }
+        })
+        // console.log(res)
+        areaSelect.value = ''
+        let allAreaStr = res.data.map(areaName => `<option value="${areaName}">${areaName}</option>`).join('')
+        areaSelect.innerHTML = `<option value="">--地区--</option>${allAreaStr}`
       }
     })
 
     // 9. 给模态框里确认按钮绑定点击事件
     document.querySelector('#submit').addEventListener('click', async e => {
       // 10： 收集表单里整体值
-    let formObj = serialize(theForm, {hash:true})
-    // 11.如何快速的把数字字符串，转成数字类型
-    formObj.age = +formObj.age
-    formObj.gender = +formObj.gender 
-    formObj.hope_salary = +formObj.hope_salary
-    formObj.salary = +formObj.salary
-    formObj.group = +formObj.group
-    // 转换完成之后请求服务器发送学生信息
-    const res = await axios({
-      url:'/students',
-      method:'POST',
-      data:formObj
-    })
-    // 13添加成功重置模态框
-    // 重置模态框里的表单（触发form标签原生的reset事件）
-    theForm.reset()
-    // 关闭模态框
-    myModal.hide()
-    // 重新请求最新的数据铺设
-    setStudentList()
+      let formObj = serialize(theForm, { hash: true })
+      // 11.如何快速的把数字字符串，转成数字类型
+      formObj.age = +formObj.age
+      formObj.gender = +formObj.gender
+      formObj.hope_salary = +formObj.hope_salary
+      formObj.salary = +formObj.salary
+      formObj.group = +formObj.group
+      if (editID === null) {
+        //新增
+        // 转换完成之后请求服务器发送学生信息
+        const res = await axios({
+          url: '/students',
+          method: 'POST',
+          data: formObj
+        })
+      } else {
+        //编辑逻辑
+            await axios({
+          url: `/students/${editID}`,
+          method: 'PUT',
+          data: formObj
+        })
+      }
+
+      // 13添加成功重置模态框
+      // 重置模态框里的表单（触发form标签原生的reset事件）
+      theForm.reset()
+      // 关闭模态框
+      myModal.hide()
+      
+      
+      // 重新请求最新的数据铺设
+      setStudentList()
     })
 
+  </script>
+
+  <!-- 编辑 -->
+  <script>
+    document.querySelector('.list').addEventListener('click', async e => {
+      if (e.target.classList.contains('bi-pen')) {
+        // 获取自定义属性id关联的学生id值
+        let theID = e.target.dataset.id
+        editID = theID//保存起来用于后续判断
+        // 模态框出现
+        myModal.show()
+        document.querySelector('#xue').innerHTML = '编辑学员'
+
+        // 基于axios请求正在编辑的学生信息
+        const res = await axios({
+          url: `/students/${theID}`
+        })
+        let studentObj = res.data//学生信息对象
+        console.log(res)
+        // 问题  给select的value赋值，为何不显示
+        // 1. select不是输入框，给value不会直接显示的，要与他下拉菜单option的value匹配才有默认显示option
+        // 2. 现在select没有option与selectdevalue匹配，所提不显示
+        // 解决  先等省份对应的城市列表铺设出来，再把城市下属地区列表铺设出来在做数据回显
+        let cityRes = await axios({
+          url: '/api/city',
+          params: {
+            pname: studentObj.province
+          }
+        })
+        // console.log(res)
+        let allCitystr = cityRes.data.map(cityName => `<option value="${cityName}">${cityName}</option>`).join('')
+        citySelect.innerHTML = `<option value="">--城市--</option>${allCitystr}`
+
+        let areaRes = await axios({
+          url: '/api/area',
+          params: {
+            pname: studentObj.province,
+            cname: studentObj.city
+          }
+        })
+        // console.log(res)
+        let allAreaStr = areaRes.data.map(areaName => `<option value="${areaName}">${areaName}</option>`).join('')
+        areaSelect.innerHTML = `<option value="">--地区--</option>${allAreaStr}`
+
+        // 回显核心代码
+        // 和以前思路相反   获取到所有变淡域表单，然后name属性里提前准备好的值
+        const fields = document.querySelectorAll('form [name]')
+        console.log(fields)//[input标签对象，...]
+        // NodeList伪数组---》Array.from()转成真数组
+        Array.from(fields).forEach(el => {
+          // 对性别单选框单独处理
+          if (el.name === 'gender') {
+            // 看标签自带value是否返回当前学生性别数字相同
+            // 如果相同，那就让当前el标签的checked为true即可
+            // 因为多个单选框name的值相同是一组的，有一个人的checked为true另一个则为没有选中状态
+            if (+el.value === studentObj[el.name]) el.checked = true
+
+          } else {
+            // 把标签name属性值作为数据对象换出value，然后给对应的标签value赋值
+            el.value = studentObj[el.name]
+          }
+          // 知识点：
+          // 用户选择option选项是，option的value值会自动绑定在slect标签value属性内
+          // 用js代码，给select百骑爱你value属性赋值，会自动与他下属的option的value做对比，哪个option选项就会默认显示
+
+
+
+
+        })
+
+        console.log(res)
+      }
+    })
   </script>
 </body>
 
