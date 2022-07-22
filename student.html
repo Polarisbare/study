@@ -408,6 +408,7 @@
     let proSelect = document.querySelector('[name="province"]')
     let citySelect = document.querySelector('[name="city"]')
     let areaSelect = document.querySelector('[name="area"]')
+    let theForm = document.querySelector('#form')
     async function setProvinceListFn(){
       const res = await axios({
         url:'/api/province'
@@ -453,6 +454,32 @@
        areaSelect.innerHTML = `<option value="">--地区--</option>${allAreaStr}`
       }
     })
+
+    // 9. 给模态框里确认按钮绑定点击事件
+    document.querySelector('#submit').addEventListener('click', async e => {
+      // 10： 收集表单里整体值
+    let formObj = serialize(theForm, {hash:true})
+    // 11.如何快速的把数字字符串，转成数字类型
+    formObj.age = +formObj.age
+    formObj.gender = +formObj.gender 
+    formObj.hope_salary = +formObj.hope_salary
+    formObj.salary = +formObj.salary
+    formObj.group = +formObj.group
+    // 转换完成之后请求服务器发送学生信息
+    const res = await axios({
+      url:'/students',
+      method:'POST',
+      data:formObj
+    })
+    // 13添加成功重置模态框
+    // 重置模态框里的表单（触发form标签原生的reset事件）
+    theForm.reset()
+    // 关闭模态框
+    myModal.hide()
+    // 重新请求最新的数据铺设
+    setStudentList()
+    })
+
   </script>
 </body>
 
