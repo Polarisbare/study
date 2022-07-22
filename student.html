@@ -167,7 +167,7 @@
                         src="https://yanxuan-item.nosdn.127.net/8b27deb1670c53e67c42ca3e1ed6fd12.jpg" />
                     </span>
                     <div class="ml-2 d-none d-lg-block">
-                      <span class="mb-0 text-sm font-weight-bold">Admin</span>
+                      <span id="wudi" class="mb-0 text-sm font-weight-bold">Admin</span>
                     </div>
                   </div>
                 </a>
@@ -339,10 +339,38 @@
   <script src="./lib/axios.js"></script>
   <script src="./lib/form-serialize.js"></script>
   <script src="./js/common.js"></script>
+  <script src="./js/permission.js"></script>
+  <!-- 学生列表的铺设 -->
   <script>
-      // 添加和编辑标签思路
-      // 添加和编辑服用同一套标单（主流）
-      
+    // 添加和编辑标签思路
+    // 添加和编辑服用同一套标单（主流）
+    async function setStudentList() {
+      let res = await axios({
+        url: '/students'
+      })
+      console.log(res)
+      // 铺设数据
+      let trArr = res.data.map(obj => {
+        return `
+                   <tr>
+                      <td>${obj.name}</td>
+                      <td>${obj.age}</td>
+                      <td>${obj.gender === 0 ? '男':'女' }</td>
+                      <td>第${obj.group}组</td>
+                      <td>${obj.hope_salary}</td>
+                      <td>${obj.salary}</td>
+                      <td>${obj.province}${obj.city}${obj.area}</td>
+                      <td>
+                        <a href="javascript:;" class="text-success mr-3"><i class="bi bi-pen"></i></a>
+                        <a href="javascript:;" class="text-danger"><i class="bi bi-trash"></i></a>
+                      </td>
+                    </tr>
+          
+          `
+      })
+      document.querySelector('.list').innerHTML = trArr.join('')
+    }
+    setStudentList()
   </script>
 </body>
 

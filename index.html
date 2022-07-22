@@ -269,21 +269,12 @@
   <script src="./js/common.js"></script>
   <!-- 配合ECharts使用的中国地图数据后引入这个 -->
   <script src="./lib/china.js"></script>
+  <script src="./js/permission.js"></script>
   <!-- 目标需求 不登录不能访问首页 -->
   <!-- 登陆成功之后会有一个token字符串做标记 -->
   <!-- 从本地取如果拿到了秘钥字符串就证明之前登录并存过，证明你已经登陆了，如果没取到就证明没登录 -->
   <script>
-    if (localStorage.getItem('hm_token') === null) {
-      // 没拿到就强制跳转到登录页面
-      location.href = './login.html'
-    }
-    // 从本地拿出用户名在用户右上角登录页面显示
-    document.querySelector('#wudi').innerHTML = localStorage.getItem('hm_username')
-    // 退出绑定点击事件 清楚本地存储的数据，返回登录页面
-    document.querySelector('#logout').addEventListener('click', e => {
-      localStorage.clear()//清楚本地数据
-      location.href = './login.html'
-    })
+  
     // 发送请求获取数据学生信息
     // axios有固定的选项叫headers，可以指定请求头和值
     axios({
